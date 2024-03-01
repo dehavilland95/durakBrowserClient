@@ -1,7 +1,8 @@
 const ws = new WebSocket('ws://localhost');
-
+localStorage.setItem('accessToken', '');
 ws.onopen = function(){
-    console.log('Connected to server');
+    const token = localStorage.getItem('accessToken');
+    SendToServer('auth', token)
 }
 
 ws.onmessage = function(data){
@@ -17,6 +18,25 @@ ws.onerror = function(e){
     console.log('Error: ', e);
 }
 
-const SendToServer = (data) =>{
-    ws.send(JSON.stringify({ data: data }));
+const SendToServer = (route, data = null) =>{
+    ws.send(JSON.stringify({ route, data: data }));
+}
+
+const test = async () =>{
+    try{
+        console.log('test')
+        const res = await axios.get('http://localhost:80/');
+        console.log(res)
+    }catch(e){
+        console.log(e)
+    }
+}
+
+const GetImage = async () =>{
+    const result = await axios.post('http://localhost:80/getCaptcha');
+    const captchaBlock = document.getElementById('captchaBlock');
+    const parser = new DOMParser();
+    console.log('id: ', result.data.id);
+    const svg = parser.parseFromString(result.data.captcha, "image/svg+xml").documentElement;
+    captchaBlock.appendChild(svg);
 }
